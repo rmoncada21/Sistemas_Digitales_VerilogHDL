@@ -1,1 +1,1 @@
-![Image](3-Circuitos_Simples/3-Circuitos_Simples/ej_3-1_Circuito_Simple.png)
+![Imagen ](3-Circuitos_Simples/ej_3-1_Circuito_Simple.png)

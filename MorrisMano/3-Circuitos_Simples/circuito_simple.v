@@ -1,6 +1,8 @@
 //Libro Morris Mano pag 101
 //Descripción del circuito simple de la fig 3-37
 
+
+// module es como una funcion de C
 module circuito_simple ();
 input A,B,C;
 output x,y;
