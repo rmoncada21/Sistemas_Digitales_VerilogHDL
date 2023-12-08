@@ -1,6 +1,5 @@
 # VerilogHDL
 Ejercicios y práctica de Verilog HDL
-
 Estructura común en un proyecto de sistemas digitales:
 ~~~
         proyecto_verilog/
