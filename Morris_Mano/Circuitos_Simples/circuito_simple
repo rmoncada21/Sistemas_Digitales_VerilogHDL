@@ -1,0 +1,56 @@
+#! /usr/bin/vvp
+:ivl_version "12.0 (stable)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "/usr/lib64/ivl/system.vpi";
+:vpi_module "/usr/lib64/ivl/vhdl_sys.vpi";
+:vpi_module "/usr/lib64/ivl/vhdl_textio.vpi";
+:vpi_module "/usr/lib64/ivl/v2005_math.vpi";
+:vpi_module "/usr/lib64/ivl/va_math.vpi";
+S_0x561296ef62b0 .scope module, "circuito_simple" "circuito_simple" 2 2;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "A";
+    .port_info 1 /INPUT 1 "B";
+    .port_info 2 /INPUT 1 "C";
+    .port_info 3 /OUTPUT 1 "x";
+    .port_info 4 /OUTPUT 1 "y";
+o0x7f84dd5f1018 .functor BUFZ 1, C4<z>; HiZ drive
+o0x7f84dd5f1048 .functor BUFZ 1, C4<z>; HiZ drive
+L_0x561296f07430 .functor AND 1, o0x7f84dd5f1018, o0x7f84dd5f1048, C4<1>, C4<1>;
+o0x7f84dd5f1078 .functor BUFZ 1, C4<z>; HiZ drive
+L_0x561296f07520 .functor NOT 1, o0x7f84dd5f1078, C4<0>, C4<0>, C4<0>;
+L_0x561296f075f0 .functor OR 1, L_0x561296f07430, L_0x561296f07520, C4<0>, C4<0>;
+v0x561296ef65d0_0 .net "A", 0 0, o0x7f84dd5f1018;  0 drivers
+v0x561296f06a00_0 .net "B", 0 0, o0x7f84dd5f1048;  0 drivers
+v0x561296f06ac0_0 .net "C", 0 0, o0x7f84dd5f1078;  0 drivers
+v0x561296f06b90_0 .net "e", 0 0, L_0x561296f07430;  1 drivers
+v0x561296f06c50_0 .net "x", 0 0, L_0x561296f075f0;  1 drivers
+v0x561296f06d60_0 .net "y", 0 0, L_0x561296f07520;  1 drivers
+S_0x561296ef6440 .scope module, "delay" "delay" 3 3;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "A";
+    .port_info 1 /INPUT 1 "B";
+    .port_info 2 /INPUT 1 "C";
+    .port_info 3 /OUTPUT 1 "x";
+    .port_info 4 /OUTPUT 1 "y";
+o0x7f84dd5f1228 .functor BUFZ 1, C4<z>; HiZ drive
+o0x7f84dd5f1258 .functor BUFZ 1, C4<z>; HiZ drive
+L_0x561296f07730/d .functor AND 1, o0x7f84dd5f1228, o0x7f84dd5f1258, C4<1>, C4<1>;
+L_0x561296f07730 .delay 1 (30,30,30) L_0x561296f07730/d;
+o0x7f84dd5f1288 .functor BUFZ 1, C4<z>; HiZ drive
+L_0x561296f07870/d .functor NOT 1, o0x7f84dd5f1288, C4<0>, C4<0>, C4<0>;
+L_0x561296f07870 .delay 1 (20,20,20) L_0x561296f07870/d;
+L_0x561296f079e0/d .functor OR 1, L_0x561296f07730, L_0x561296f07870, C4<0>, C4<0>;
+L_0x561296f079e0 .delay 1 (10,10,10) L_0x561296f079e0/d;
+v0x561296f06ec0_0 .net "A", 0 0, o0x7f84dd5f1228;  0 drivers
+v0x561296f06fa0_0 .net "B", 0 0, o0x7f84dd5f1258;  0 drivers
+v0x561296f07060_0 .net "C", 0 0, o0x7f84dd5f1288;  0 drivers
+v0x561296f07100_0 .net "e", 0 0, L_0x561296f07730;  1 drivers
+v0x561296f071c0_0 .net "x", 0 0, L_0x561296f079e0;  1 drivers
+v0x561296f072d0_0 .net "y", 0 0, L_0x561296f07870;  1 drivers
+# The file index is used to find the file name in the following table.
+:file_names 4;
+    "N/A";
+    "<interactive>";
+    "circuito_simple.v";
+    "delay.v";
