@@ -9,7 +9,7 @@ module delay(A,B,C,x,y);
     // el retardo se hace con las directiva 
     // #(tiempo_de_retardo)
     and #(30) g1(e,A,B);
-    not #(20) g2(y,C);
-    or  #(10) g3(x,e,y);
+    or  #(20) g3(x,e,y);
+    not #(10) g2(y,C);
 
 endmodule
