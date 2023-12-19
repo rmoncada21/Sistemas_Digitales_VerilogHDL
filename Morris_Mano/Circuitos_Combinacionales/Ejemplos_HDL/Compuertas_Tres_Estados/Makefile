@@ -13,19 +13,22 @@ EXE_TESTBENCHES = $(filter testbench_%, $(TESTBENCHES:.v=))
 MODULE_FROM_TESTBENCH = $(patsubst testbench_%,%,$(TESTBENCHES))
 
 # compila los modulos y los testbench al mismo tiempo
-all: $(EXE_MODULES) $(EXE_TESTBENCHES) run
+all: $(EXE_MODULES) $(EXE_TESTBENCHES) 
 
-# reglar para imprimir los modulos por separado
-$(EXE_MODULES):
+# regla para imprimir los modulos por separado
+$(EXE_MODULES): $(MODULES)
 %:%.v
-	$(IVE) $(VFLAGS) $(VERSION) -o bin/$@ $<
+	$(IVE) $(VFLAGS) $(VERSION) -o bin/$@ $^ 
 
 # funciona para compilar las dependercias del testbench
 $(EXE_TESTBENCHES): $(MODULE_FROM_TESTBENCH) $(TESTBENCHES)
 	$(IVE) $(VFLAGS) $(VERSION) -o bin/$@ $(VFLAGS) $^
 
 
-run: $(EXE_TESTBENCHES)
+runt: $(EXE_TESTBENCHES)
+	$(VVP) bin/$<
+
+runm: $(EXE_MODULES)
 	$(VVP) bin/$<
 
 clean:
