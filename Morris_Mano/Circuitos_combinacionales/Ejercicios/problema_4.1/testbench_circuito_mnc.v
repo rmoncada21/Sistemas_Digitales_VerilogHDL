@@ -47,6 +47,7 @@ module testbench_circuito;
 
     // Bucle principal de prueba
     initial begin
+        $display("\nTESTBENCH de circuito_mnc.v");
         $display("ABCD  F1  F2");
         for (int test_num = 0; test_num < N; test_num = test_num + 1) begin
             // Asignar los valores de entrada

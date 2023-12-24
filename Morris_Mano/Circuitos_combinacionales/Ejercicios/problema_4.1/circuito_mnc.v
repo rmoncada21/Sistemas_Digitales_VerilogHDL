@@ -1,3 +1,5 @@
+// Circuito modelado por nivel de compuertas
+
 module circuito_compuertas (A, B, C, D, F1, F2);
     input A, B, C, D;
     output F1, F2;
