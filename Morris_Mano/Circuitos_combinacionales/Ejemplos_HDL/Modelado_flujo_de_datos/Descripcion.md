@@ -59,6 +59,8 @@ Un compilador de síntesis Verilog HDL puede aceptar como entrada esta descripci
 
 Especifica que la salida OUT = A, si select=1, caso contrario OUT =  o sea select=0.
 
+![img](img/mux2x1.png)
+
 ~~~ verilog
 module multiplexor2x1(A, B, select, OUT);
     input A, B, selecct;
