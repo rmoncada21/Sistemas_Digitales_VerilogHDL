@@ -15,6 +15,7 @@ module testbench_circuito_nosimp_mnc;
     // Definición de la tarea para generar la tabla de verdad
     task gen_table;
         reg [3:0] in_func;
+        $display("testbench_circuito_nosimp_mnc");
         $display("A B C D| F G");
 
         // Iterar sobre todas las combinaciones posibles
