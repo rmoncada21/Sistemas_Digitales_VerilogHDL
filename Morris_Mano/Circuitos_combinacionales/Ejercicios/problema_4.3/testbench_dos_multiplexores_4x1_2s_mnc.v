@@ -65,6 +65,7 @@ module testbench_dos_multiplexores_4x1_2s_mnc;
         $display("\Vector A");
         $display("A0  A1  A2  A3 | ES  Y0  Y1  Y2  Y3 ");
         $display("%b    %b   %b   %b | %2b  %b    %b   %b   %b ", A_tb[0], A_tb[1], A_tb[2], A_tb[3], ES_tb, Y0, Y1, Y2, Y3);
+        $display("%b   %b", ES_tb[0], ES_tb[1]);
         $display("\Vector B");
         $display("B0  B1  B2  B3 | ES  Y0  Y1  Y2  Y3 ");
         $display("%b    %b   %b   %b | %2b  %b    %b   %b   %b ", B_tb[0], B_tb[1], B_tb[2], B_tb[3], ES_tb, Y0, Y1, Y2, Y3);
