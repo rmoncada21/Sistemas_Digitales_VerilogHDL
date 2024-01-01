@@ -55,3 +55,12 @@ tienen más unos que ceros. La salida es 0 en caso contrario. Diseñe un circuit
 entradas.
 
 ![img](img/6.png)
+
+## COnvertir código gray en código binario
+Diseñe un circuito combinacional que convierta un código Gray de cuatro bits (tabla 1-6) en un número binario de cuatro bits. Implemente el circuito con compuertas OR exclusivo.
+
+![img](img/7_gray.png)
+
+![img](img/7.png)
+
+![img](img/7_corregido.png)
