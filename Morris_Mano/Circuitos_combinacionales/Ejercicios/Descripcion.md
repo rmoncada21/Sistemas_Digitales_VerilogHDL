@@ -56,7 +56,7 @@ entradas.
 
 ![img](img/6.png)
 
-## COnvertir código gray en código binario
+## 4.7 COnvertir código gray en código binario
 Diseñe un circuito combinacional que convierta un código Gray de cuatro bits (tabla 1-6) en un número binario de cuatro bits. Implemente el circuito con compuertas OR exclusivo.
 
 ![img](img/7_gray.png)
@@ -64,3 +64,14 @@ Diseñe un circuito combinacional que convierta un código Gray de cuatro bits (
 ![img](img/7.png)
 
 ![img](img/7_corregido.png)
+
+## 4.8 Diseño Conversor
+Diseñe un convertidor de código que convierta un dígito decimal del código 8, 4, 22, 21 a BCD
+
+![img](img/8.png)
+
+
+![img](img/8_circuito.png)
+
+- Correción en la compuerta and 5
+![img](img/8_correcion.png)
