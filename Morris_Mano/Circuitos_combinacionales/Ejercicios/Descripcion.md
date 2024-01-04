@@ -75,3 +75,9 @@ Diseñe un convertidor de código que convierta un dígito decimal del código 8
 
 - Correción en la compuerta and 5
 ![img](img/8_correcion.png)
+
+## 4.9 Diseño
+Un decodificador de BCD a siete segmentos es un circuito combinacional que convierte un dígito decimal BCD en un código apropiado para seleccionar segmentos de un indicador que exhibe los dígitos decimales en la forma acostumbrada. Las siete salidas del decodificador (a, b, c, d, e, f, g) seleccionan los segmentos correspondientes del indicador, como se indica en la figura P4-9a). La forma de representar los dígitos decimales con el indicador se muestra en la figura P4-9b). Diseñe un decodificador de BCD a siete segmentos empleando el mínimo de compuertas. Las seis combinaciones no válidas deberán dejar el indicador en blanco.
+
+![img](img/9_figura.png)
+![img](img/9_circuito.png)
