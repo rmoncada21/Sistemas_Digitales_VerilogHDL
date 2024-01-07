@@ -97,3 +97,5 @@ a) Diseñe un circuito semirrestador con entradas x y y, y salidas D y B. El cir
 x-y, y coloca la diferencia en D y el préstamo (borrow) en B.
 b) Diseñe un circuito restador completo con tres entradas, x, y y z, y dos salidas, D y B. El circuito resta x-y-z, donde z es el préstamo de entrada, B es el préstamo de salida y D es
 la diferencia.
+![img](img/12_semirestador.png)
+![img](img/12_restador_completo.png)
