@@ -91,6 +91,7 @@ Diseñe un circuito combinacional complementador a dos, de cuatro bits. (La sali
 Diseñar un circuito combinacional incrementador de cuatro bits. (Un circuito que suma 1 a un número binario de cuatro bits.) El circuito puede diseñarse con cuatro semisumadores.
 
 ![img](img/11_sumador.png)
+![img](img/11_sumador_4bits.png)
 
 ## 4-12 Circuito Restador
 a) Diseñe un circuito semirrestador con entradas x y y, y salidas D y B. El circuito resta los bits
@@ -99,3 +100,29 @@ b) Diseñe un circuito restador completo con tres entradas, x, y y z, y dos sali
 la diferencia.
 ![img](img/12_semirestador.png)
 ![img](img/12_restador_completo.png)
+![img](img/12_restador_4bits.png)
+
+
+## 4.19 Diagrama de bloques
+
+Construya un circuito sumador-restador BCD. Utilice el sumador BCD de la figura 4-14 y el complementador a nueve del problema 4-18. Utilice diagramas de bloque para los componentes.
+
+- a) Circuito Sumador
+![img](img/19_sumador_4bits)
+
+- b) Circuito Sumador BCD
+![img](img/19_sumador_BCD_4bits.png)
+
+- c) Complementor a 9 BCD 
+![img](img/19_complemento_a_9.png)
+![img](img/19_bloque_complemento_a_9.png)
+
+- d) Mux 4x1 
+![img](img/19_mux_4x1.png)
+![img](img/19_bloque_mux_4x1.png)
+
+- e) Sumador-restador BCD
+![img](img/19_bloque_sumador_restado_completo.png)
+Dividido en dos (Ver cual se ve mejor)
+![img](img/19_bloque_sumador_restado_completo_1.png)
+![img](img/19_bloque_sumador_restado_completo_2.png)
