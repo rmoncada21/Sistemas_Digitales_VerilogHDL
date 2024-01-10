@@ -115,6 +115,7 @@ Construya un circuito sumador-restador BCD. Utilice el sumador BCD de la figura 
 ![img](img/19_sumador_BCD_4bits.png)
 
 - c) Complementor a 9 BCD 
+
 ![img](img/19_complemento_a_9.png)
 ![img](img/19_bloque_complemento_a_9.png)
 
