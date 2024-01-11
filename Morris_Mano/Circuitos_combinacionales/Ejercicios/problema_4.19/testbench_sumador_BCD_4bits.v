@@ -79,12 +79,6 @@ module testbench_sumador_BCD_4bits;
 
         endcase
         
-        // $display("%b", suma_BCD);
-        // if({Acarreo_BCD_tb,Z_salida_tb} == suma_BCD) begin
-        //     $display("Prueba correcta A=%b + B=%b =%b", A_tb, B_tb, suma_BCD);
-        // end else begin
-        //     $display("ERROR A=%b + B=%b !=%b", A_tb, B_tb, suma_BCD);
-        // end
     endtask
 
     initial begin

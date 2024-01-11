@@ -1,6 +1,6 @@
 module complemento_9_BCD(
-    input reg [3:0] A,
-    output reg [3:0] Complemento
+    output reg [3:0] Complemento,
+    input reg [3:0] A
 );
 
     wire

@@ -1,8 +1,8 @@
 module mux4x1_mnc(
     // Entradas y salidas del modulo
+    output reg [3:0] F,
     input reg Select,
-    input reg [3:0] I0, I1,
-    output reg [3:0] F
+    input reg [3:0] I0, I1
 );
     wire 
         notSelect,
