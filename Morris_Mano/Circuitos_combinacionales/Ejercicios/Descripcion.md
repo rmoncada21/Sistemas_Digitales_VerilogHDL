@@ -129,3 +129,13 @@ Construya un circuito sumador-restador BCD. Utilice el sumador BCD de la figura 
 Dividido en dos (Ver cual se ve mejor)
 ![img](img/19_bloque_sumador_restado_completo_1.png)
 ![img](img/19_bloque_sumador_restado_completo_2.png)
+
+## 4.20 Multiplicador
+Diseñe un multiplicador binario que multiplique dos números de cuatro bits. Utilice compuertas AND y sumadores binarios.
+
+![img](img/20_multiplicador_4x1bit.png)
+![img](img/20_bloque_multiplicador.png)
+
+![img](img/20_multiplicador_parte1.png)
+![img](img/20_multiplicador_parte2.png)
+![img](img/20_bloque_multiplicador.png)
