@@ -1,18 +1,20 @@
 // Ejemplo 5.3 b)
+`include "FFD_reset_async.v"
 
 module FFJK(
-    output reg qjk,
+    output Q,
     input clk, J, K, reset_async
 );
 
-    wire D;
-    assign D = (J & ~qjk) | (~K & qjk);
+    reg D;
+    assign D = (J & ~Q) | (~K & Q);
 
     // Instanciar FFD
     FFD_reset_async FFD(
-        .qd(qjk),
+        .qd(Q),
         .clk(clk),
         .data(D),
         .reset_async(reset_async)
     );
 endmodule
+

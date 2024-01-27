@@ -3,9 +3,19 @@ module FFD_reset_async(
     input clk, data, reset_async
 );
 
-    always @ (posedge clk or reset_async) begin
+    always @ (posedge clk or negedge reset_async) begin
         // si reset_async == 0
-        if (~reset_async) qd = 1'b0;
+        if (~reset_async) qd <= 0;
         else qd <= data;
     end 
 endmodule
+
+
+
+
+
+
+
+
+
+
