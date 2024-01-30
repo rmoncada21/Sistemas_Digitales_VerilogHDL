@@ -62,9 +62,10 @@ module testbench_register_parallel_load_1bit;
         #5; reset_async_tb = 1;
 
         repeat(20) begin
-            carga_tb = $urandom_range(0,1);
             In_tb = $urandom_range(0,1);
-            #5;
+            carga_tb = $urandom_range(0,1);
+            #10;
+            // Cargar datos en cada ciclo de reloj
         end
 
         $finish;
