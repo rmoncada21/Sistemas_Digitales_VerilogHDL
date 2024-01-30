@@ -59,7 +59,7 @@ module testbench_register_parallel_load_4bits;
         clk_tb = 0; carga_tb = 0; In_tb = 0;
         reset_async_tb = 0;
         
-        #5 reset_async_tb = 1;
+        #10 reset_async_tb = 1;
 
         repeat(10) begin
             carga_tb = $urandom_range(0,15);
