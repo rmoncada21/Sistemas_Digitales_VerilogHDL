@@ -3,6 +3,7 @@
 
 module FFJK( 
     output Q,
+    // input clk, J, K, reset_async, data
     input clk, J, K, reset_async
 );
 
