@@ -256,7 +256,7 @@ end
 En SystemVerilog, es una buena práctica separar la declaración de un objeto de su inicialización mediante el constructor.
 Cuando se trabaja con clases en SystemVerilog, se puede declarar e inicializar un objeto de la siguiente manera:
 
-```systemverilog
+```verilog
 // Declaración e inicialización combinada
 Driver d = new();
 ```
@@ -657,4 +657,676 @@ endclass
 - **Evita Errores**: Previene errores de asignación accidental al aclarar las referencias a las variables miembro de la clase.
 - **Buenas Prácticas**: Es una buena práctica de programación en lenguajes orientados a objetos como SystemVerilog, donde la sobrecarga de nombres puede ocurrir frecuentemente.
 
-## k. Clases anidadass
+## k. Clases anidadas
+
+Una clase puede contener una instancia de otra clase, utilizando un manejador para un objeto. 
+
+![alt text](img/clase_anidada.png)
+
+
+~~~verilog
+// Ejemplo 5.20
+class Statistics;
+  time startT, stopT; // Transaction times
+  static int ntrans = 0; // Transaction count
+  static time total_elapsed_time = 0;
+
+  function time how_long;
+    how_long = stopT - startT;
+    ntrans++;
+    total_elapsed_time += how_long;
+  endfunction
+
+  function void start;
+    startT = $time;
+  endfunction
+endclass
+~~~
+// Sample 5.21: Encapsulating the Statistics class
+
+~~~verilog
+// Ejemplo 5.21: encapsulamiento de la clase statatics
+class Transaction;
+  bit [31:0] addr, crc, data[8];
+  Statistics stats; // Statistics handle
+
+  function new();
+    stats = new(); // Make instance of stats
+  endfunction
+
+  task create_packet();
+    // Fill packet with data
+    stats.start();
+    // Transmit packet
+  endtask
+endclass
+~~~
+
+El ejemplo anterior destaca el uso de la clase `Statistics` para encapsular el cálculo de tiempos y contar transacciones dentro de una clase externa más grande llamada `Transaction`. A continuación, se explican algunos detalles importantes del código:
+
+- **Jerarquía y referencia a miembros de clase**
+   La clase más externa, `Transaction`, puede referirse a los elementos de la clase `Statistics` utilizando la sintaxis jerárquica habitual. Por ejemplo, dentro de la clase `Transaction`, puedes acceder a la variable `startT` de la clase `Statistics` a través del manejador `stats`:
+   ```verilog
+   stats.startT
+   ```
+
+- **Instanciación de objetos**
+   Uno de los aspectos más importantes es la correcta **instanciación** del objeto `Statistics` dentro de la clase `Transaction`. Si no instancias este objeto, el manejador `stats` será nulo, y cualquier intento de llamar a métodos, como `stats.start()`, provocará un fallo en la simulación.
+   
+   En el código, la instanciación del objeto `Statistics` se realiza en el constructor de `Transaction`:
+   ```verilog
+   function new();
+     stats = new(); // Crear instancia de stats
+   endfunction
+   ```
+   Esto asegura que el manejador `stats` esté correctamente inicializado antes de ser usado en otros métodos o tareas, como `create_packet()`.
+
+- **Modularización y manejo de complejidad**
+   A medida que tus clases crezcan en tamaño y complejidad, puede ser difícil gestionar la organización y claridad del código. Si las declaraciones de variables y métodos de una clase ocupan más de una página, es una señal de que deberías considerar **dividir la clase en varias clases más pequeñas**. Esta técnica se llama **refactorización** y es crucial para mejorar la mantenibilidad y escalabilidad del código.
+
+   Por ejemplo, en el caso de la clase `Transaction`, si la cantidad de estadísticas o funciones relacionadas con el manejo de datos creciera significativamente, podrías dividir la clase en:
+   - Una clase dedicada a la gestión de datos.
+   - Una clase para la transmisión de paquetes.
+   - Otra clase para el control de estadísticas.
+
+- **Uso de clases base y herencia**
+   Un buen indicio de que es necesario **refactorizar** es cuando encuentras **código repetitivo o similar en varios lugares** dentro de una misma clase. Este código repetitivo podría extraerse en una función o en una **clase base**. Por ejemplo:
+   - Si el cálculo del tiempo o la cuenta de transacciones se vuelve algo común en varias partes del código, podrías crear una **clase base** que encapsule esas funcionalidades.
+   - Luego, podrías hacer que otras clases hereden de esta clase base, reutilizando el código de manera más eficiente y evitando la duplicación.
+
+   El **Capítulo 8** menciona más detalles sobre **herencia de clases**, lo que permite organizar y estructurar el código en una jerarquía lógica, haciendo el código más modular y reutilizable.
+
+
+### k.1 Problemas con el orden de compilación
+
+El tema del **orden de compilación** se refiere a cómo el compilador procesa el código en SystemVerilog (o en otros lenguajes), especialmente cuando una clase hace referencia a otra que aún no ha sido definida en el código. Esto puede llevar a problemas de compilación, ya que el compilador no sabría cómo manejar un tipo de dato (clase) que no ha encontrado antes.
+
+### ¿Cuál es el problema?
+
+Si se tiene una clase que usa o declara un manejador de otra clase que aún no ha sido definida, el compilador generará un error porque no sabe cómo interpretar esa referencia. Por ejemplo, en el siguiente fragmento:
+
+```verilog
+class Transaction;
+  Statistics stats;
+  ...
+endclass
+```
+
+Aquí, `Transaction` está usando una instancia de `Statistics`, pero si `Statistics` no ha sido definida antes de la clase `Transaction`, el compilador no sabrá qué es `Statistics`, lo que causará un error.
+
+### Solución con `typedef`
+
+Para solucionar este problema de compilación, puedes usar una declaración **forward** de la clase utilizando `typedef`. Este tipo de declaración le indica al compilador que **más adelante** se definirá la clase `Statistics`, permitiéndole continuar compilando sin problemas. 
+
+El código corregido sería:
+
+```verilog
+// Ejemplo 5.22
+typedef class Statistics;
+ // Declaración forward de la clase Statistics
+
+class Transaction;
+  Statistics stats; 
+  // Ahora el compilador sabe que stats es del tipo Statistics
+  ...
+endclass
+
+class Statistics;
+  ...
+endclass
+```
+
+**Explicación**
+
+1. **`typedef class Statistics;`**: Esta línea le dice al compilador que habrá una clase llamada `Statistics` más adelante en el código. No necesita conocer los detalles de la clase en este punto, solo que es un tipo de dato válido que podrá usar.
+
+2. **Clase `Transaction`**: Ahora el compilador puede procesar la clase `Transaction`, porque sabe que `stats` es del tipo `Statistics`, aunque la clase `Statistics` aún no esté completamente definida.
+
+3. **Definición de la clase `Statistics`**: Posteriormente, se define la clase `Statistics` como se haría normalmente, sin causar problemas de compilación.
+
+**Importancia**
+
+Este patrón es especialmente útil cuando tienes dependencias circulares o cuando tienes una estructura de código grande y las clases pueden no estar definidas en el mismo archivo o en el mismo orden de compilación. El uso de `typedef` o declaraciones forward permite organizar el código de manera más flexible sin tener que preocuparse excesivamente por el orden exacto de las definiciones.
+
+## l. Objetos dinámicos
+
+### l.1 Ojetos como argumentos de los métodos
+
+Para leer un modificar un objeto a través del método, se necesita pasar el handle del objeto, no el objeto en sí. 
+
+![alt text](img/handle_a_objeto.png)
+
+#### **a) Paso por Valor vs. Paso por Referencia**
+
+1. **Paso por valor (sin `ref`)**: Cuando pasas un argumento a una tarea o función **sin** el modificador `ref`, SystemVerilog copia el valor de ese argumento. Esto significa que cualquier modificación realizada en el argumento dentro de la tarea **no** afectará al valor original en el bloque que llamó a esa tarea.
+
+2. **Paso por referencia (con `ref`)**: Cuando usas `ref` para un argumento, estás pasando la dirección de la variable (o su referencia), lo que permite que la tarea modifique directamente el valor original. Esto es útil cuando quieres que una tarea pueda alterar el valor de una variable en el contexto de quien la llama.
+
+**Ejemplo Explicado**
+
+```verilog
+// Transmit a packet onto a 32-bit bus
+task transmit(Transaction t);
+    CBbus.rx_data <= t.data;
+    t.stats.startT = $time;
+    ...
+endtask
+
+Transaction t;
+initial begin
+    t = new();
+    t.addr = 42;
+    transmit(t);
+end
+```
+
+1. **Asignación de `t`**: En el bloque `initial`, se crea un nuevo objeto `Transaction` llamado `t`. Luego, se asigna el valor `42` a `t.addr`.
+
+2. **Llamada a `transmit(t)`**: Se llama a la tarea `transmit`, pasándole el manejador del objeto `Transaction` `t`.
+
+3. **Modificación dentro de `transmit`**: Dentro de la tarea, se accede al objeto `Transaction` usando el manejador `t`. Se pueden leer y escribir valores del objeto, como `t.data` o `t.stats.startT`.
+
+   - **Lectura y escritura en el objeto**: Como `t` es un manejador (apunta a un objeto), cualquier modificación en los atributos del objeto se verá reflejada fuera de la tarea, ya que se está modificando el **objeto** que `t` apunta.
+   
+   - **Manejador vs. Objeto**: Aunque el manejador `t` apunta al objeto, la tarea `transmit` no puede modificar el manejador en sí (la dirección a la que apunta). Si intentara asignar un nuevo valor a `t` dentro de `transmit`, esa modificación no se reflejaría fuera de la tarea, ya que el manejador fue pasado **por valor** (sin `ref`).
+
+#### **b) Confusión Común: Manejador vs. Objeto**
+
+- **Manejador**: Es como una "referencia" o "puntero" al objeto. Pasar un manejador **sin** `ref` significa que la tarea no puede cambiar el manejador en sí, pero sí puede modificar el objeto al que apunta.
+
+- **Objeto**: Es la instancia real de la clase. La tarea puede modificar el contenido del objeto, y esos cambios serán visibles fuera de la tarea, incluso si el manejador fue pasado sin `ref`.
+
+#### c) ¿Cuándo usar `ref`?
+
+- Usa `ref` si quieres que la tarea pueda modificar el **manejador** (cambiar qué objeto está referenciando).
+- Si solo quieres modificar el contenido del objeto, puedes pasar el manejador sin `ref`.
+
+**Resumen**
+
+- **Sin `ref`**: Se pasa una copia del manejador. La tarea puede modificar el objeto al que apunta el manejador, pero no puede modificar el propio manejador.
+- **Con `ref`**: Se pasa el manejador por referencia, lo que permite modificar tanto el manejador como el objeto al que apunta.
+  
+Este mecanismo de paso de argumentos es crucial para entender cómo los métodos y tareas interactúan con los datos en SystemVerilog, especialmente al trabajar con objetos y clases.
+
+
+#### d) Modificando un handle en un task
+
+Existe un error común en SystemVerilog relacionado con el uso incorrecto del paso de argumentos, particularmente cuando se trabaja con **manejadores** o **handles** de objetos.
+
+**Manejo Incorrecto de Manejadores**
+
+El problema en el siguiente ejemplo ocurre cuando se intenta modificar un **manejador** (referencia a un objeto) dentro de una función o tarea, pero sin el modificador `ref`. Si no se usa `ref`, SystemVerilog pasa una **copia** del manejador como argumento a la función, lo que significa que cualquier cambio en ese manejador no será reflejado fuera de la función. 
+
+```verilog
+// Ejemplo 5.24
+function void create(Transaction tr); // Bug, missing ref
+    tr = new();
+    tr.addr = 42;
+    // Initialize other fields
+endfunction
+
+Transaction t;
+initial begin
+    create(t);
+    $display(t.addr);
+end
+```
+
+**¿Qué está pasando?**
+
+1. **Llamada a `create(t)`**: El manejador `t` se pasa a la función `create`, pero no con `ref`. Esto significa que **se pasa una copia** del manejador `t` a la función.
+   
+2. **`tr = new();` en `create`**: Dentro de la función, se asigna un nuevo objeto `Transaction` a la variable `tr`. Sin embargo, como `tr` es una copia del manejador `t`, la variable `t` en el bloque `initial` no se actualiza con el nuevo objeto. Fuera de la función, `t` sigue siendo `null`.
+
+3. **Resultado**: Cuando se intenta acceder a `t.addr` después de la llamada a `create`, falla, porque `t` nunca fue actualizado (sigue siendo `null`).
+
+### Solución: Uso de `ref`
+
+Para corregir este error, debes usar el modificador `ref` en el argumento `tr`. Esto asegura que se pase la **referencia** al manejador, de manera que los cambios hechos al manejador dentro de la función sean visibles fuera de ella.
+
+En el ejemplo corregido (Sample 5.25):
+
+```verilog
+function void create(ref Transaction tr); 
+    tr = new(); // Now this updates the original handle
+    tr.addr = 42;
+    // Initialize other fields
+endfunction
+
+Transaction t;
+initial begin
+    create(t);  // t is now updated correctly
+    $display(t.addr);  // Will correctly display the address
+end
+```
+
+**¿Qué cambia?**
+
+1. **`ref` en el argumento `tr`**: Ahora, la función recibe una referencia directa al manejador `t`, no una copia.
+   
+2. **Modificación del manejador**: Al hacer `tr = new();`, ahora se actualiza el **manejador original** `t` en el bloque `initial`.
+
+3. **Resultado**: Después de llamar a `create`, `t` apunta a un objeto válido de tipo `Transaction`, y el acceso a `t.addr` funcionará correctamente.
+
+### Resumen
+
+- **Sin `ref`**: Si no se usa `ref`, se pasa una **copia** del manejador, por lo que los cambios hechos al manejador dentro de la función no afectan el manejador original en el bloque que llamó a la función. Esto es útil si quieres modificar solo los datos del objeto al que apunta el manejador, pero no cambiar el manejador en sí.
+  
+- **Con `ref`**: Si se usa `ref`, el manejador que se pasa a la función o tarea es **el mismo** que en el bloque de llamada, por lo que cualquier cambio al manejador afecta directamente el bloque llamador. Esto es necesario cuando quieres que el manejador apunte a un nuevo objeto, como en este caso.
+
+El uso incorrecto de `ref` puede causar errores difíciles de depurar, especialmente cuando el manejador parece no estar actualizado como se espera. Por eso, es importante saber cuándo y cómo utilizarlo correctamente.
+
+
+### e) Arrays of handles
+
+Al escribir *testbenches* en SystemVerilog, es común la necesidad de manejar múltiples objetos, como transacciones o paquetes de datos. Una forma eficiente de hacerlo es utilizando **arreglos de manejadores**. Estos manejadores no son los objetos en sí mismos, sino referencias que apuntan a los objetos. Por lo tanto, es necesario instanciar cada objeto de manera individual antes de usarlo. A continuación, se explica con más detalle el funcionamiento de los arreglos de manejadores.
+
+En el Ejemplo 5.28, se muestra cómo almacenar diez transacciones de bus en un arreglo de manejadores:
+
+```verilog
+// Ejemplo 5.28
+task generator();
+    Transaction tarray[10];  // Arreglo de 10 manejadores de transacciones
+    foreach (tarray[i]) 
+    begin
+        tarray[i] = new();   // Crear un nuevo objeto en cada posición del arreglo
+        transmit(tarray[i]); // Usar el objeto a través del manejador
+    end
+endtask
+```
+
+#### Detalles Importantes:
+
+1. **Arreglo de Manejadores**: El arreglo `tarray` está compuesto por manejadores de objetos, es decir, referencias que apuntan a instancias de la clase `Transaction`. No se deben confundir los manejadores con los objetos; los manejadores son simplemente direcciones de memoria que apuntan a los objetos.
+
+2. **Instanciación de Objetos**: Al declarar un arreglo de manejadores, los elementos del arreglo no apuntan a ningún objeto hasta que se instancian explícitamente con `new()`. En el código, esto se hace en la línea `tarray[i] = new();` dentro de un bucle `foreach`. Cada elemento del arreglo se convierte en un manejador que apunta a una instancia del objeto `Transaction`.
+
+3. **Uso de Objetos**: Después de instanciar los objetos, se pueden utilizar llamando a métodos o funciones sobre los manejadores, como se hace en la llamada `transmit(tarray[i]);`. Esto pasa el objeto referenciado por `tarray[i]` a la tarea `transmit`.
+
+#### Conceptos Clave:
+
+- **No hay arreglos de objetos, solo de manejadores**: Aunque se pueda hablar de "arreglos de objetos", técnicamente en SystemVerilog lo que existe son **arreglos de manejadores** que apuntan a objetos. No hay una manera directa de instanciar todos los objetos de un arreglo en una sola línea; cada objeto debe construirse individualmente usando `new()`.
+  
+- **Manejadores nulos o compartidos**: Como los manejadores son simplemente referencias, algunos de ellos pueden no apuntar a ningún objeto (quedando *nulos*), o varios manejadores podrían apuntar al mismo objeto. Esto implica que debes ser cuidadoso al trabajar con arreglos de manejadores, asegurándote de que apunten a objetos válidos y evitando compartir manejadores de manera no intencional.
+
+#### Resumen:
+
+- Un **arreglo de manejadores** no contiene objetos en sí, sino referencias a objetos.
+- Cada objeto en el arreglo debe ser instanciado individualmente con `new()`.
+- Los manejadores pueden estar *nulos* o compartir la referencia de un mismo objeto, lo que requiere un manejo cuidadoso al usarlos.
+  
+
+## m) Copia de objetos
+
+### m.1 Copia de un objeto con el operador `new`
+
+Copiar un objeto con el operador new es fácil y confiable. Se asigna memoria para el nuevo objeto y todas las variables del objeto existente se copian. 
+
+El siguiente ejemplo realiza una copia superficial, similar a una fotocopia del original, que transcribe ciegamente los valores de origen a destino. Si la clase contiene un manejador (handle) a otra clase, solo se copia el valor del manejador, no el objeto al que apunta.
+
+~~~verilog
+// Ejemplo 5.29
+class Transaction;
+    bit [31:0] addr, crc, data[8];
+endclass
+
+Transaction src, dst;
+
+initial begin
+    src = new();       // Crear el primer objeto
+    dst = new src;     // Hacer una copia usando el operador new
+end
+~~~
+
+
+
+```verilog
+class Transaction;
+    bit [31:0] addr, crc, data[8];
+    static int count = 0;
+    int id;
+    Statistics stats; // Manejador que apunta al objeto Statistics
+    
+    // Constructor
+    function new();
+        stats = new();
+        id = count++;
+    endfunction
+endclass
+
+// Crear objetos Transaction y Statistics
+Transaction src, dst;
+
+initial begin
+    src = new();              // Crear un objeto Transaction
+    src.stats.startT = 42;    // Resultado como en la Figura 5-5
+
+    dst = new src;            // Copiar src en dst usando el operador new
+    // Resultado como en la Figura 5-6
+
+    dst.stats.startT = 96;    // Cambia stats para dst y src
+    $display(src.stats.startT); // Imprime "96", ver Figura 5-7
+end
+```
+
+### Explicación:
+
+- **Clase `Transaction`**: 
+  - Contiene atributos como `addr`, `crc` y un arreglo `data[8]`.
+  - También tiene un atributo estático `count` que se utiliza para contar el número de instancias.
+  - Un manejador `stats` que apunta a un objeto de tipo `Statistics`.
+  - El constructor inicializa `stats` y asigna un `id` único a cada transacción.
+  
+- **Creación de objetos**: 
+  - Se crean dos instancias de la clase `Transaction` (`src` y `dst`), donde la variable `src.stats.startT` se asigna un valor.
+
+  ![alt text](img/objeto_src.png)
+
+- **Copia de objetos**: 
+  - Se copia el objeto `src` en `dst` usando `new src`.
+  - Se copia el objeto `Transaction` pero no el objeto `Statics`. Solo se    copian los valores de las variables y los manejadores.
+  - Cualquier cambio en `dst.stats.startT` afecta tanto a `src` como a `dst`, debido a que ambos objetos están compartiendo el mismo manejador `stats`.
+
+  ![alt text](img/variables_de_objetos.png)
+
+
+### m.2 Función de copia propia
+
+Para realizar una copia de una clase que no tiene referencias a otras clases, escribir una función de copia es sencillo.
+
+
+Aquí tienes el código formateado en `~verilog`:
+
+```verilog
+// Ejemplo 5.31
+class Transaction;
+  bit [31:0] addr, crc, data[8];  // No Statistic handle
+  
+  function Transaction copy();
+    copy = new();       // Construct destination
+    copy.addr = addr;   // Fill in data values
+    copy.crc = crc;     
+    copy.data = data;   // Array copy
+  endfunction
+endclass
+
+// Sample 5.32 Using a copy function
+Transaction src, dst;
+
+initial begin
+  src = new();      // Create first object
+  dst = src.copy(); // Make a copy of the object
+end
+```
+
+### m.3 Función deep copy 
+
+Cuando se crea una función de copia personalizada para una clase, es necesario actualizarla cada vez que se agregan nuevas variables. Si se olvida agregar una variable en la función de copia, podría llevar mucho tiempo depurar el problema para encontrar el valor faltante.
+
+En el siguiente ejemplo, se muestra cómo se define una función de copia profunda en una clase compleja. La función `copy()` se utiliza para crear una copia completa del objeto, asegurando que todos los campos sean copiados correctamente, incluyendo las instancias de las clases contenidas.
+
+**Ejemplo 5.33**: Clase compleja con función de copia profunda
+
+```verilog
+class Transaction;
+  bit [31:0] addr, crc, data[8];
+  Statistics stats; // Handle points to Statistics object
+  static int count = 0;
+  int id;
+
+  function new();
+    stats = new();
+    id = count++;
+  endfunction
+
+  function Transaction copy();
+    copy = new();
+    // Construct destination object
+    copy.addr = addr;
+    // Fill in data values
+    copy.crc = crc;
+    copy.data = data;
+    copy.stats = stats.copy(); // Call Statistics::copy
+  endfunction
+endclass
+```
+
+La función `new()` es llamada por `copy()`, y por lo tanto, cada objeto recibe un ID único. Se debe agregar un método `copy()` para la clase `Statistics` y cualquier otra clase en la jerarquía.
+
+**Ejemplo 5.34**: Declaración de la clase Statistics
+
+```verilog
+class Statistics;
+  time startT, stopT; // Transaction times
+  // ...
+
+  function Statistics copy();
+    copy = new();
+    copy.startT = startT;
+    copy.stopT = stopT;
+  endfunction
+endclass
+```
+
+Ahora, cuando se realiza una copia del objeto `Transaction`, el nuevo objeto `dst` tendrá su propia instancia de `Statistics`, como se muestra en el siguiente ejemplo.
+
+**Ejemplo 5.35**: Copiando una clase compleja con el operador new
+
+```verilog
+Transaction src, dst;
+
+initial begin
+  src = new(); // Create first object
+  src.stats.startT = 42; // Set start time
+  dst = new src; // Copy src to dst with deep copy
+  dst.stats.startT = 96; // Changes stats for dst only
+  $display(src.stats.startT); // "42", See Figure 5-8
+end
+```
+
+En este código, `src` se crea e inicializa, y se hace una copia profunda en `dst`. Los cambios realizados en `dst` no afectan a `src`, lo que se confirma con la visualización del valor de `startT` de `src`.
+
+
+### m.4 Empaquetando objetos para y desde arreglos usando operadores streaming/transmisión
+
+#### a) Operadores de transmisión
+
+En SystemVerilog, los operadores de transmisión son utilizados para empacar y desempaquetar datos en y desde arreglos de bytes. Estos operadores permiten convertir datos entre tipos de datos de SystemVerilog y formatos de byte que pueden ser transmitidos o almacenados.
+
+Aquí están los operadores de transmisión más comunes en SystemVerilog:
+
+1. **`{}` (Concatenación)**: 
+   - Utilizado para agrupar múltiples variables en un solo arreglo de bits.
+   - Ejemplo:
+     ```systemverilog
+     byte data = {var1, var2, var3};
+     ```
+
+2. **`>>` (Desempaquetar de izquierda a derecha)**:
+   - Utilizado para extraer bits de un arreglo de bytes y asignarlos a variables individuales.
+   - Ejemplo:
+     ```systemverilog
+     var1 = data >> 16;
+     var2 = data >> 8;
+     var3 = data;
+     ```
+
+3. **`<<` (Empacar de derecha a izquierda)**:
+   - Utilizado para empacar valores en un arreglo de bytes.
+   - Ejemplo:
+     ```systemverilog
+     data = (var1 << 16) | (var2 << 8) | var3;
+     ```
+
+4. **`pack` y `unpack` (Funciones de empaquetado y desempaquetado)**:
+   - Utilizadas en el contexto de objetos y arreglos personalizados para convertir datos entre su representación interna y un formato de byte.
+   - Ejemplo de `pack`:
+     ```systemverilog
+     function void pack(output byte packed_data[]);
+         packed_data = {var1, var2, var3};
+     endfunction
+     ```
+   - Ejemplo de `unpack`:
+     ```systemverilog
+     function void unpack(input byte packed_data[]);
+         var1 = packed_data[0:7];
+         var2 = packed_data[8:15];
+         var3 = packed_data[16:23];
+     endfunction
+     ```
+
+5. **`$bits()`**:
+   - Función utilizada para obtener el tamaño en bits de una variable o expresión.
+   - Ejemplo:
+     ```systemverilog
+     int size = $bits(data);
+     ```
+
+Estos operadores y funciones son esenciales para el empaquetado y desempaquetado de datos, especialmente en sistemas que requieren transmitir datos en formato de byte por protocolos específicos.
+
+
+#### b) Objetos empaquetados y desemapaquetados
+
+Cuando se trabaja con protocolos que transmiten datos en formato de byte, como el ATM, es necesario empaquetar y desempaquetar datos de manera eficiente. En el contexto de SystemVerilog, esto implica usar operadores de transmisión para convertir entre formatos de datos internos y arreglos de bytes que se pueden transmitir o almacenar. Aquí se explica cómo se hace esto con ejemplos en el código proporcionado.
+
+### Explicación General
+
+**Empaquetado (Packing):**
+- Cuando se envía una transacción, se debe convertir el objeto en una secuencia de bytes.
+- Para hacer esto, se agrupan las variables del objeto en un arreglo de bytes usando funciones diseñadas para ese propósito.
+- Es importante no empaquetar el objeto completo tal como está, ya que podría incluir propiedades adicionales que no se desean transmitir (por ejemplo, metadatos, marcas de tiempo).
+
+**Desempaquetado (Unpacking):**
+- Después de recibir una secuencia de bytes, se debe reconstruir el objeto de la transacción.
+- Esto implica convertir el arreglo de bytes de nuevo en las variables del objeto.
+
+### Ejemplo de Código: Clase `Transaction`
+
+```verilog
+class Transaction;
+  bit [31:0] addr, crc, data[8]; // Datos reales
+  static int count = 0; // Meta-datos
+  int id;
+
+  // Constructor
+  function new();
+    id = count++;
+  endfunction
+
+  // Muestra el contenido del objeto
+  function void display();
+    $write("Tr: id=%0d, addr=%x, crc=%x", id, addr, crc);
+    foreach(data[i]) $write(" %x", data[i]);
+    $display;
+  endfunction
+
+  // Empaqueta el objeto en un arreglo de bytes
+  function void pack(ref byte bytes[40]);
+    bytes = { >> {addr, crc, data}};
+  endfunction
+
+  // Desempaqueta un arreglo de bytes en un nuevo objeto
+  function Transaction unpack(ref byte bytes[40]);
+    { >> {addr, crc, data}} = bytes;
+  endfunction
+endclass : Transaction
+```
+
+### Uso de las Funciones `pack` y `unpack`
+
+```verilog
+Transaction tr, tr2;
+byte b[40];
+
+initial begin
+  // Crear y llenar el objeto con valores
+  tr = new();
+  tr.addr = 32'ha0a0a0a0;
+  tr.crc = '1;
+  foreach (tr.data[i])
+    tr.data[i] = i;
+
+  // Empaquetar el objeto en un arreglo de bytes
+  tr.pack(b);
+  $write("Pack results: ");
+  foreach (b[i])
+    $write("%h", b[i]);
+  $display;
+
+  // Crear un nuevo objeto y desempaquetar los bytes en él
+  tr2 = new();
+  tr2.unpack(b);
+  tr2.display();
+end
+```
+
+### Desglose del Código
+
+1. **Definición de la Clase `Transaction`:**
+   - **Variables**: `addr`, `crc`, y `data` se definen como variables de datos; `count` y `id` como meta-datos.
+   - **Método `new`**: Inicializa el objeto y asigna un ID único.
+   - **Método `display`**: Muestra los valores actuales del objeto.
+   - **Método `pack`**: Empaqueta las variables del objeto en un arreglo de bytes.
+   - **Método `unpack`**: Desempaqueta un arreglo de bytes y lo asigna a las variables del objeto.
+
+2. **Uso de `pack` y `unpack`:**
+   - **Creación del objeto `tr`**: Se llena con valores específicos.
+   - **Empaquetado**: `tr.pack(b)` convierte el objeto en un arreglo de bytes `b`.
+   - **Desempaquetado**: Se crea un nuevo objeto `tr2`, y `tr2.unpack(b)` reconstruye el objeto a partir del arreglo de bytes `b`.
+   - **Mostrar resultados**: Se visualizan los bytes empaquetados y los valores del objeto desempaquetado.
+
+Este enfoque permite manejar la conversión de datos entre diferentes representaciones de manera controlada, facilitando la transmisión y recepción de datos en protocolos que operan a nivel de byte.
+
+### n) Public vs Local
+
+En la Programación Orientada a Objetos (OOP), el objetivo principal es encapsular datos y métodos en una clase para evitar interferencias entre clases. Las variables dentro de una clase son locales por defecto, y la clase ofrece métodos accesores para interactuar con esos datos. Esto permite cambiar la implementación interna sin afectar a los usuarios de la clase, ya que solo se interactúa a través de los métodos accesores.
+
+Por ejemplo, una clase `Transaction` podría tener un método para establecer una carga útil y un CRC. En OOP convencional, estos métodos garantizarían que el CRC siempre esté sincronizado con la carga útil, evitando errores en los datos.
+
+Sin embargo, en un testbench, es útil poder introducir errores intencionadamente para probar cómo responde el sistema. En SystemVerilog, por defecto, todos los miembros de una clase son públicos, a diferencia de otros lenguajes OOP como C++ o Java, donde la visibilidad es más restringida. Esta visibilidad pública en SystemVerilog permite a los testbenches acceder y modificar directamente variables como el CRC para introducir errores fácilmente y evaluar el comportamiento del dispositivo bajo prueba (DUT). Esto puede simplificar el testbench al evitar la necesidad de mecanismos adicionales para acceder a datos ocultos, permitiendo una mayor flexibilidad en las pruebas.
+
+### ñ) Construyendo un `Testbench`
+
+Las transacciones en la Figura 5-9 son objetos, pero cada bloque también se representa como una clase.
+
+![alt text](img/testbench.png)
+
+En un entorno de prueba (testbench) basado en SystemVerilog, los componentes fundamentales como el Generator, Agent, Driver, Monitor, Checker y Scoreboard están diseñados como clases. Estas clases se instancian dentro de una clase principal llamada Entorno. La prueba en sí misma está situada en la parte superior de la jerarquía, al igual que el programa que instancia la clase Entorno. Las definiciones para la cobertura funcional pueden estar incluidas dentro o fuera de la clase Entorno.
+
+### Transactores
+
+Un **transactor** es un componente en el testbench que maneja el flujo de transacciones entre bloques. Los transactores tienen una estructura básica:
+
+1. **Generador**: Crea y aleatoriza transacciones sin recibir una entrada previa.
+2. **Driver**: Toma una transacción y la envía al DUT (Dispositivo Bajo Prueba) como señales.
+3. **Monitor**: Observa y registra las transacciones que pasan por el DUT.
+4. **Checker**: Verifica si las transacciones cumplen con ciertos criterios.
+5. **Scoreboard**: Acumula y compara los resultados de las transacciones para evaluar el desempeño del DUT.
+
+Estos transactores están modelados para recibir un objeto de transacción de un bloque anterior, realizar las transformaciones necesarias, y luego enviarlo al siguiente bloque. Algunos transactores, como el Generador, no tienen un bloque ascendente y se encargan de construir y aleatorizar las transacciones desde cero. Otros, como el Driver, reciben una transacción y la envían al DUT como cambios en las señales.
+
+### Ejemplo de un Transactor Básico
+
+El siguiente código muestra un transactor básico en SystemVerilog:
+
+```verilog
+class Transactor;
+    // Clase genérica
+    Transaction tr;
+
+    task run();
+        forever begin
+            // Obtener la transacción del bloque ascendente
+            ...
+            // Realizar algún procesamiento
+            ...
+            // Enviar la transacción al bloque descendente
+            ...
+        end
+    endtask
+endclass
+```
+
+### Intercambio de Transacciones
+
+Para intercambiar transacciones entre bloques, puedes usar código procedural que haga que un objeto llame al siguiente, o puedes utilizar estructuras de datos como FIFOs para almacenar transacciones en tránsito entre bloques. En el Capítulo 7, se aprenderá a usar buzones de mensajes, que son FIFOs avanzados con la capacidad de bloquear un hilo hasta que se añada un nuevo valor, facilitando la sincronización entre diferentes partes del testbench.
