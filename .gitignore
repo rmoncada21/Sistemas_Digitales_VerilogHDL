@@ -1,5 +1,5 @@
-*.sh
 *.vcd
 bin/
 test/
 test*
+*.out
