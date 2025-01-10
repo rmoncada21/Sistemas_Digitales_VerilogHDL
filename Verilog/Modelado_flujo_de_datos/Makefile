@@ -8,7 +8,7 @@
 APP=
 CODE=$(patsubst %.v,%,$(APP))
 IVERILOG=iverilog
-VPP=vpp
+VVP=vvp
 VERSION=-g2012
 VFLAGS=-Wall
 OUTPUT=-o
@@ -25,7 +25,7 @@ code: $(APP)
 	$(IVERILOG) $(VERSION) $(VFLAGS) $(APP) $(OUTPUT) $(BIN_FOLDER)/$(CODE)
 
 run: $(APP)
-	$(VPP) $(BIN_FOLDER)/$(CODE)
+	$(VVP) $(BIN_FOLDER)/$(CODE)
 
 clean:
 	rm -rf $(BIN_FOLDER)/*
