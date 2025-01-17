@@ -1,5 +1,5 @@
 *.vcd
 bin/
 test/
-test*
+test.txt
 *.out
