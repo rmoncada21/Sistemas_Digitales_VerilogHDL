@@ -1,4 +1,4 @@
-## Ejemplo 4.1 HDL Decode 2x4 con entrada Enable
+## Circuito 4.1 HDL Decode 2x4 con entrada Enable
 
 
 ![image](img/decode2x4.png)
@@ -6,7 +6,7 @@
 ![image](img/decode2x4_code.png)
 
 
-## Ejemplo 4.2 Diseño jerarquico ascendente
+## Circuito 4.2 Diseño jerarquico ascendente
 
 ### Semisumador
 ![image](img/half_adder.png)
@@ -21,7 +21,7 @@
 ![image](img/4bits_adder.png)
 
 
-## Ejemplo 4.10 TESTBENCH Circuito de análisis
+## Circuito 4.10 TESTBENCH Circuito de análisis
 ![Imagen](img/ejemplo_analisis.png)
 
 ~~~verilog
