@@ -1,5 +1,5 @@
 module shift_reg_nbits_siso #(parameter N=4)(
-    input clk, si, 
+    input clk, si,
     output reg [N-1:0] shift
 );
 
