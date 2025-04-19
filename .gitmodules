@@ -1,3 +1,6 @@
 [submodule "digital_design_VerilogHDL"]
 	path = digital_design_VerilogHDL
 	url = git@rmoncada21.github.com:rmoncada21/digital_design_VerilogHDL.git
+[submodule "digital_verification_SV"]
+	path = digital_verification_SV
+	url = git@rmoncada21.github.com:rmoncada21/digital_verification_SystemVerilog.git
