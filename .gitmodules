@@ -7,3 +7,6 @@
 [submodule "digital_design_SystemVerilog"]
 	path = digital_design_SystemVerilog
 	url = git@rmoncada21.github.com:rmoncada21/digital_design_SystemVerilog.git
+[submodule "digital_architectureHDL"]
+	path = digital_architectureHDL
+	url = git@rmoncada21.github.com:rmoncada21/digital_architectureHDL.git
