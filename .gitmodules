@@ -1,0 +1,3 @@
+[submodule "digital_design_VerilogHDL"]
+	path = digital_design_VerilogHDL
+	url = git@rmoncada21.github.com:rmoncada21/digital_design_VerilogHDL.git
