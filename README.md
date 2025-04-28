@@ -1,2 +1,0 @@
-# SystemVerilog
-Disseño Digital -  SystemVerilog
